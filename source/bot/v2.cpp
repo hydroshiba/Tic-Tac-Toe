@@ -15,11 +15,6 @@ v2::v2() {
 	reorder();
 }
 
-v2::~v2() {
-	for(int i : order) if(weight[i] != 0)
-		std::cout << i << ' ' << weight[i] << std::endl;
-}
-
 int v2::index(std::vector<int> perm) {
 	int ans = 0;
 

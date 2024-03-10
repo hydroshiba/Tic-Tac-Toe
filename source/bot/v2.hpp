@@ -21,7 +21,7 @@ private:
 
 public:
 	v2();
-	~v2();
+	~v2() = default;
 
 	byte move(Player turn, char board[3][3]) override;
 };
