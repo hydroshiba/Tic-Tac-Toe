@@ -1,5 +1,4 @@
 #include "v2.hpp"
-#include <iostream>
 
 v2::v2() {
     ran.seed(std::random_device()());
@@ -53,8 +52,6 @@ byte v2::move(Player turn, char board[3][3]) {
 	byte last, cell = 9, blocks = 0;
 	
 	std::vector<int> cells = permutation(order[0]);
-	for(int i : cells) std::cout << i << ' ';
-	std::cout << '\n';
 
 	for(int i = 0; i < 9; ++i) {
 		if(!get(mask, cells[i])) {
