@@ -9,6 +9,7 @@
 #include "bot/v0.hpp"
 #include "bot/v1.hpp"
 #include "bot/v2.hpp"
+#include "bot/v3.hpp"
 
 class Game {
 private:
@@ -20,7 +21,7 @@ private:
 	v0 random_bot;
 	v1 easy_bot;
 	v2 medium_bot;
-	v2 hard_bot;
+	v3 hard_bot;
 
 	Player player(char turn);
 
