@@ -1,1 +1,11 @@
-/.DS_Store
+# Folders
+.DS_Store
+.vscode
+build
+
+# Extensions
+*.exe
+*.exec
+*.out
+*.o
+*.app
