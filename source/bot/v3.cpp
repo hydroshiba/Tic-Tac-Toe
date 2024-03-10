@@ -62,6 +62,5 @@ void v3::calculate(Player turn, int mask) {
 
 byte v3::move(Player turn, char board[3][3]) {
 	int mask = this->mask(board);
-	std::cout << "Evaluation: " << (int)eval[turn][mask] << std::endl;
 	return trace[turn][mask];
 }
