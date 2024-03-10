@@ -8,8 +8,9 @@ v2::v2() {
 	for(int i = 1; i < 10; ++i) factorial[i] = i * factorial[i - 1];
 
 	weight.resize(factorial[9], 1);
+	--weight[index({7, 5, 1, 3, 6, 2, 8, 0, 4})]; 
 	std::vector<int> perms(factorial[9]);
-	
+
 	std::iota(perms.begin(), perms.end(), 0);
 	std::shuffle(perms.begin(), perms.end(), ran);
 
