@@ -2,6 +2,8 @@
 #define GAME_HPP_
 
 #include <iostream>
+#include <iomanip>
+#include <random>
 #include <vector>
 #include <string>
 
@@ -14,10 +16,11 @@
 class Game {
 private:
 	std::string title;
-	char turn, difficulty;
 	char board[3][3];
 
-	Bot* bot;
+	Bot* p1;
+	Bot* p2;
+
 	v0 random_bot;
 	v1 easy_bot;
 	v2 medium_bot;
@@ -36,12 +39,15 @@ private:
 	void show();
 	void welcome();
 
+	Bot* get_bot(char diff);
+
 public:
 	Game();
 	~Game();
 
 	void start();
 	void play();
+	void simulate();
 };
 
 #endif

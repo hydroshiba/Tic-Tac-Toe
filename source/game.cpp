@@ -1,6 +1,6 @@
 #include "game.hpp"
 
-Game::Game() : bot(nullptr) {
+Game::Game() : p1(nullptr), p2(nullptr) {
 	title = R"(
 	 ______  __  ______       ______  ______  ______       ______  ______  ______    
 	/\__  _\/\ \/\  ___\     /\__  _\/\  __ \/\  ___\     /\__  _\/\  __ \/\  ___\   
@@ -9,7 +9,6 @@ Game::Game() : bot(nullptr) {
 	    \/_/  \/_/\/_____/       \/_/  \/_/\/_/\/_____/       \/_/  \/_____/\/_____/
 	)";
 
-	init();
 	welcome();
 }
 
@@ -80,62 +79,102 @@ void Game::welcome() {
 	std::cout << title << std::endl;
 }
 
+Bot *Game::get_bot(char difficulty) {
+	switch(difficulty) {
+		case 'R': return new v0;
+		case 'E': return new v1;
+		case 'M': return new v2;
+		case 'H': return new v3;
+		default: return new v0;
+	}
+}
+
 void Game::start() {
 	std::cout << "\n================================================================================================\n" << std::endl;
-	std::cout << "Choose difficulty (R for Random, E for Easy, M for Medium, H for Hard): ";
-	std::cin >> difficulty;
-
-	while(difficulty != 'R' && difficulty != 'E' && difficulty != 'M' && difficulty != 'H'){
-		std::cout << "Invalid difficulty! Choose difficulty (R for Random, E for Easy, M for Medium, H for Hard): ";
-		std::cin >> difficulty;
-	}
-
-	switch(difficulty) {
-		case 'R':
-			bot = &random_bot;
-			break;
-		case 'E':
-			bot = &easy_bot;
-			break;
-		case 'M':
-			bot = &medium_bot;
-			break;
-		case 'H':
-			bot = &hard_bot;
-			break;
-	}
-
-	std::cout << "Choose your turn (X goes first, O follows): ";
-	std::cin >> turn;
-
-	while(turn != 'X' && turn != 'O'){
-		std::cout << "Invalid turn! Choose your turn (X goes first, O follows): ";
-		std::cin >> turn;
-	}
 	
-	play();
+	char choice;
+	std::cout << "Enter P to play, S to simulate or Ctrl-C to quit: ";
+	std::cin >> choice;
+
+	while(choice != 'P' && choice != 'S'){
+		std::cout << "Invalid choice! Enter P to play, S to simulate or Ctrl-C to quit: ";
+		std::cin >> choice;
+	}
+
+	if(choice == 'P') play();
+	else simulate();
 }
 
 void Game::play() {
+	init();
+	std::cout << std::endl;
+
+	char c1;
+	std::cout << "Choose difficulty for player 1 (P for Player, R for Random, E for Easy, M for Medium, H for Hard): ";
+	std::cin >> c1;
+
+	while(c1 != 'P' && c1 != 'R' && c1 != 'E' && c1 != 'M' && c1 != 'H'){
+		std::cout << "Invalid difficulty! Choose difficulty (R for Random, E for Easy, M for Medium, H for Hard): ";
+		std::cin >> c1;
+	}
+
+	if(c1 != 'P') {
+		if(p1) delete p1;
+		p1 = get_bot(c1);
+	}
+
+	char c2;
+	std::cout << "Choose difficulty for player 2 (P for Player, R for Random, E for Easy, M for Medium, H for Hard): ";
+	std::cin >> c2;
+
+	while(c2 != 'P' && c2 != 'R' && c2 != 'E' && c2 != 'M' && c2 != 'H'){
+		std::cout << "Invalid difficulty! Choose difficulty (R for Random, E for Easy, M for Medium, H for Hard): ";
+		std::cin >> c2;
+	}
+
+	if(c2 != 'P') {
+		if(p2) delete p2;
+		p2 = get_bot(c2);
+	}
+
 	char turn = 'X';
 	show();
 
 	while(!win() && !draw()) {
-		if(this->turn == turn) {
+		if(turn == 'X') {
 			int move;
-			std::cout << "Your move: ";
-			std::cin >> move;
+			std::cout << "Player 1's move: ";
 
-			while(move < 0 || move > 8 || board[move / 3][move % 3] != ' ') {
-				std::cout << "Invalid move! Your move: ";
+			if(c1 == 'P') {
 				std::cin >> move;
+				while(move < 0 || move > 8 || board[move / 3][move % 3] != ' ') {
+					std::cout << "Invalid move! Player 1's move:  ";
+					std::cin >> move;
+				}
+			}
+			else {
+				move = p1->move(player(turn), board);
+				std::cout << move << std::endl;
 			}
 
 			board[move / 3][move % 3] = turn;
 		}
 		else {
-			int move = bot->move(player(turn), board);
-			std::cout << "Computer's move: " << move << std::endl;
+			int move;
+			std::cout << "Player 2's move: ";
+
+			if(c2 == 'P') {
+				std::cin >> move;
+				while(move < 0 || move > 8 || board[move / 3][move % 3] != ' ') {
+					std::cout << "Invalid move! Player 2's move:  ";
+					std::cin >> move;
+				}
+			}
+			else {
+				move = p2->move(player(turn), board);
+				std::cout << move << std::endl;
+			}
+
 			board[move / 3][move % 3] = turn;
 		}
 
@@ -143,20 +182,113 @@ void Game::play() {
 		turn = turn == 'X' ? 'O' : 'X';
 	}
 
-	if(win()) std::cout << (this->turn != turn ? "You" : "Computer") << " won!" << std::endl;
+	if(win()) std::cout << (turn != 'X' ? "Player 1" : "Player 2") << " won!" << std::endl;
 	else std::cout << "It's a draw!" << std::endl;
 
+	char choice;
 	std::cout << "Do you want to play again? (Y/N): ";
-	char answer;
-	std::cin >> answer;
+	std::cin >> choice;
 
-	while(answer != 'Y' && answer != 'N'){
-		std::cout << "Invalid answer! Do you want to play again? (Y/N): ";
-		std::cin >> answer;
+	while(choice != 'Y' && choice != 'N'){
+		std::cout << "Invalid choice! Do you want to play again? (Y/N): ";
+		std::cin >> choice;
 	}
 
-	if(answer == 'Y') {
+	if(choice == 'Y') play();
+	else start();
+}
+
+void Game::simulate() {
+	char choice;
+	int rounds;
+
+	std::cout << std::endl;
+	std::cout << "Choose difficulty for player 1 (R for Random, E for Easy, M for Medium, H for Hard): ";
+	std::cin >> choice;
+
+	while(choice != 'R' && choice != 'E' && choice != 'M' && choice != 'H'){
+		std::cout << "Invalid choice! Choose choice (R for Random, E for Easy, M for Medium, H for Hard): ";
+		std::cin >> choice;
+	}
+
+	if(p1) delete p1;
+	p1 = get_bot(choice);
+
+	std::cout << "Choose difficulty for player 2 (R for Random, E for Easy, M for Medium, H for Hard): ";
+	std::cin >> choice;
+
+	while(choice != 'R' && choice != 'E' && choice != 'M' && choice != 'H'){
+		std::cout << "Invalid choice! Choose choice (R for Random, E for Easy, M for Medium, H for Hard): ";
+		std::cin >> choice;
+	}
+
+	if(p2) delete p2;
+	p2 = get_bot(choice);
+
+	std::cout << "Number of rounds: ";
+	std::cin >> rounds;
+
+	int p1_wins = 0, p2_wins = 0, draws = 0;
+	int p1_pairs = 0, p2_pairs = 0, draw_pairs = 0;
+
+	for(int i = 0; i < rounds; ++i) {
 		init();
-		start();
+		char turn = 'X';
+
+		int verdict = 0;
+
+		while(!win() && !draw()) {
+			int move = (turn == 'X' ? p1->move(X, board) : p2->move(O, board));
+			board[move / 3][move % 3] = turn;
+			turn = (turn == 'X' ? 'O' : 'X');
+		}
+
+		if(win()) {
+			if(turn == 'X') ++p2_wins, --verdict;
+			else ++p1_wins, ++verdict;
+		}
+		else ++draws;
+
+		init();
+		turn = 'X';
+
+		while(!win() && !draw()) {
+			int move = (turn == 'X' ? p2->move(X, board) : p1->move(O, board));
+			board[move / 3][move % 3] = turn;
+			turn = (turn == 'X' ? 'O' : 'X');
+		}
+
+		if(win()) {
+			if(turn == 'X') ++verdict;
+			else --verdict;
+		}
+
+		if(verdict > 0) ++p1_pairs;
+		else if(verdict < 0) ++p2_pairs;
+		else ++draw_pairs;
 	}
+
+	std::cout << std::fixed << std::setprecision(2) << std::endl;
+	std::cout << "Player 1 wins: " << p1_wins << " with percentage of " << (p1_wins * 100.0 / rounds) << "%" << std::endl;
+	std::cout << "Player 2 wins: " << p2_wins << " with percentage of " << (p2_wins * 100.0 / rounds) << "%" << std::endl;
+	std::cout << "Draws: " << draws << " with percentage of " << (draws * 100.0 / rounds) << "%" << std::endl;
+	std::cout << "W/D/L ratio: " << p1_wins << " / " << draws << " / " << p2_wins << std::endl;
+
+	std::cout << std::endl;
+	std::cout << "Player 1 pairs: " << p1_pairs << " with percentage of " << (p1_pairs * 100.0 / rounds) << "%" << std::endl;
+	std::cout << "Player 2 pairs: " << p2_pairs << " with percentage of " << (p2_pairs * 100.0 / rounds) << "%" << std::endl;
+	std::cout << "Draw pairs: " << draw_pairs << " with percentage of " << (draw_pairs * 100.0 / rounds) << "%" << std::endl;
+	std::cout << "W/D/L pair ratio: " << p1_pairs << " / " << draw_pairs << " / " << p2_pairs << std::endl;
+
+	std::cout << std::endl;
+	std::cout << "Do you want to simulate again? (Y/N): ";
+	std::cin >> choice;
+
+	while(choice != 'Y' && choice != 'N'){
+		std::cout << "Invalid choice! Do you want to simulate again? (Y/N): ";
+		std::cin >> choice;
+	}
+
+	if(choice == 'Y') simulate();
+	else start();
 }
