@@ -93,16 +93,16 @@ void Game::start() {
 	std::cout << "\n================================================================================================\n" << std::endl;
 	
 	char choice;
-	std::cout << "Enter P to play, S to simulate or Ctrl-C to quit: ";
+	std::cout << "Enter P to play, S to simulate or Q to quit: ";
 	std::cin >> choice;
 
-	while(choice != 'P' && choice != 'S'){
-		std::cout << "Invalid choice! Enter P to play, S to simulate or Ctrl-C to quit: ";
+	while(choice != 'P' && choice != 'S' && choice != 'Q'){
+		std::cout << "Invalid choice! Enter P to play, S to simulate or Q to quit: ";
 		std::cin >> choice;
 	}
 
 	if(choice == 'P') play();
-	else simulate();
+	else if(choice == 'Q') simulate();
 }
 
 void Game::play() {
@@ -268,17 +268,45 @@ void Game::simulate() {
 		else ++draw_pairs;
 	}
 
+	int bar_size = 100;
+
+	std::string bar(bar_size, 'D');
+	bar.replace(0, p1_wins * bar_size / rounds, std::string(p1_wins * bar_size / rounds, '1'));
+	bar.insert(bar.begin() + p1_wins * bar_size / rounds, '|');
+
+	bar.replace(bar.size() - p2_wins * bar_size / rounds, p2_wins * bar_size / rounds, std::string(p2_wins * bar_size / rounds, '2'));
+	bar.insert(bar.end() - p2_wins * bar_size / rounds, '|');
+
+	bar = "|" + bar;
+	bar += "|";
+
 	std::cout << std::fixed << std::setprecision(2) << std::endl;
-	std::cout << "Player 1 wins: " << p1_wins << " with percentage of " << (p1_wins * 100.0 / rounds) << "%" << std::endl;
-	std::cout << "Player 2 wins: " << p2_wins << " with percentage of " << (p2_wins * 100.0 / rounds) << "%" << std::endl;
-	std::cout << "Draws: " << draws << " with percentage of " << (draws * 100.0 / rounds) << "%" << std::endl;
-	std::cout << "W/D/L ratio: " << p1_wins << " / " << draws << " / " << p2_wins << std::endl;
+	std::cout << "Player 1 wins:\t " << p1_wins << " with percentage of " << (p1_wins * 100.0 / rounds) << "%" << std::endl;
+	std::cout << "Player 2 wins:\t " << p2_wins << " with percentage of " << (p2_wins * 100.0 / rounds) << "%" << std::endl;
+	std::cout << "Draws:\t\t " << draws << " with percentage of " << (draws * 100.0 / rounds) << "%" << std::endl;
+	
+	std::cout << "W/D/L ratio: " << std::endl;
+	std::cout << std::string(bar.size(), '_') << std::endl;
+	std::cout << bar << std::endl;
+
+	bar.assign(bar_size, 'D');
+	bar.replace(0, p1_pairs * bar_size / rounds, std::string(p1_pairs * bar_size / rounds, '1'));
+	bar.insert(bar.begin() + p1_pairs * bar_size / rounds, '|');
+
+	bar.replace(bar.size() - p2_pairs * bar_size / rounds, p2_pairs * bar_size / rounds, std::string(p2_pairs * bar_size / rounds, '2'));
+	bar.insert(bar.end() - p2_pairs * bar_size / rounds, '|');
+
+	bar = "|" + bar;
+	bar += "|";
 
 	std::cout << std::endl;
-	std::cout << "Player 1 pairs: " << p1_pairs << " with percentage of " << (p1_pairs * 100.0 / rounds) << "%" << std::endl;
-	std::cout << "Player 2 pairs: " << p2_pairs << " with percentage of " << (p2_pairs * 100.0 / rounds) << "%" << std::endl;
-	std::cout << "Draw pairs: " << draw_pairs << " with percentage of " << (draw_pairs * 100.0 / rounds) << "%" << std::endl;
-	std::cout << "W/D/L pair ratio: " << p1_pairs << " / " << draw_pairs << " / " << p2_pairs << std::endl;
+	std::cout << "Player 1 pairs:\t " << p1_pairs << " with percentage of " << (p1_pairs * 100.0 / rounds) << "%" << std::endl;
+	std::cout << "Player 2 pairs:\t " << p2_pairs << " with percentage of " << (p2_pairs * 100.0 / rounds) << "%" << std::endl;
+	std::cout << "Draw pairs:\t " << draw_pairs << " with percentage of " << (draw_pairs * 100.0 / rounds) << "%" << std::endl;
+	
+	std::cout << "W/D/L pair ratio: " << std::endl;
+	std::cout << std::string(bar.size(), '_') << std::endl;
+	std::cout << bar << std::endl;
 
 	std::cout << std::endl;
 	std::cout << "Do you want to simulate again? (Y/N): ";

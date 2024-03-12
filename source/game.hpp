@@ -21,11 +21,6 @@ private:
 	Bot* p1;
 	Bot* p2;
 
-	v0 random_bot;
-	v1 easy_bot;
-	v2 medium_bot;
-	v3 hard_bot;
-
 	Player player(char turn);
 
 	bool column();
